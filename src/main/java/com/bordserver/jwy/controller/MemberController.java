@@ -39,6 +39,15 @@ public class MemberController {
 
     @PostMapping("sign-in")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpSession session) {
+        String memberAccount = SessionUtil.getLoginMemberId(session);
+        String adminAccount = SessionUtil.getLoginAdminId(session);
+        if (memberAccount != null) {
+            log.error("{} 계정을 로그아웃 후 로그인해주세요.", memberAccount);
+            return FAIL_RESPONSE;
+        } else if (adminAccount != null) {
+            log.error("{} 계정을 로그아웃 후 로그인해주세요.", adminAccount);
+            return FAIL_RESPONSE;
+        }
         MemberDTO memberInfo = memberService.login(req.getAccount(), req.getPassword());
         if (memberInfo != null) {
             loginResponse = LoginResponse.success(memberInfo);
@@ -71,6 +80,9 @@ public class MemberController {
     public ResponseEntity<LoginResponse> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest,
                                                         HttpSession session) {
         String account = SessionUtil.getLoginMemberId(session);
+        if (account == null) {
+            account = SessionUtil.getLoginAdminId(session);
+        }
         try {
             memberService.updatePassword(account, updatePasswordRequest.getBeforePassword(),
                     updatePasswordRequest.getNewPassword());
