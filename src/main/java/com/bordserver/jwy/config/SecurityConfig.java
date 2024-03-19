@@ -46,9 +46,14 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/users/sign-up"),
                 new AntPathRequestMatcher("/users/sign-in")
         };
+
+        AntPathRequestMatcher[] adminList = new AntPathRequestMatcher[]{
+                new AntPathRequestMatcher("/categories/**")
+        };
         builder.authorizeHttpRequests(authorizeHttpRequests ->
                 authorizeHttpRequests
                         .requestMatchers(apiWhitelist).permitAll()
+                        .requestMatchers(adminList).hasAuthority("ADMIN")
                         .anyRequest().authenticated());
 
         builder.csrf(AbstractHttpConfigurer::disable);
